@@ -20,6 +20,11 @@ ENV LANG de_DE.utf8
 # https://askubuntu.com/questions/105652/where-is-the-file-used-by-file1-and-libmagic-to-determine-mime-types
 # https://www.garykessler.net/library/magic.html
 
+# I have no idea why this is necessary, but it is: --break-system-packages  
+# Neither do I oversee the implications of this.
+# https://askubuntu.com/questions/1465218/pip-error-on-ubuntu-externally-managed-environment-%C3%97-this-environment-is-extern
+
+
 RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8 && \
     update-locale LANG=de_DE.UTF-8 && \
     apt-get update  && \
@@ -28,6 +33,6 @@ RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8
     apt-get install -y restic ssh-client && \
     apt-get install -y python3-pip pipx python3-dev  && \
     apt-get install -y postgresql-plpython3-16  && \
-#    pip3 install rsa  && \
-#    pipx install python-magic  && \
+    pip3 install --break-system-packages rsa  && \
+    pip3 install --break-system-packages python-magic  && \
     rm -rf /var/lib/apt/lists/*
