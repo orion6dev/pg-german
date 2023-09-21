@@ -253,13 +253,10 @@ $$ language plpython3u;
 */
 create table rt_string_vault
 (
-    id         serial primary key,   -- serial id
-    value      text,                -- the string value
-    created_on timestamp without time zone default (now() at time zone 'utc')  -- timestamp
+    id         serial primary key,                                            -- serial id
+    value      text,                                                          -- the string value
+    created_on timestamp without time zone default (now() at time zone 'utc') -- timestamp
 );
-
--- Separator
------------------------------------------------------
 
 -- Insert default strings into the string vault
 INSERT INTO rt_string_vault(value) VALUES ('');
@@ -338,7 +335,8 @@ CREATE UNIQUE INDEX rt_string_vault_idx_value ON rt_string_vault (value);
 create or replace function rt_appendstring(text)
     returns int4
     language plpgsql
-as $$
+as
+$$
 declare
     key int4;
 begin
@@ -346,13 +344,17 @@ begin
         return 1;
     end if;
 
-    select id
-    from rt_string_vault
-    where value = $1
+    select
+        id
+    from
+        rt_string_vault
+    where
+        value = $1
     into key;
 
     if (key is null) then
-        insert into rt_string_vault (value) values ($1);
+        insert
+        into rt_string_vault (value) values ($1);
         return currval(pg_get_serial_sequence('rt_string_vault', 'id'));
     end if;
 
