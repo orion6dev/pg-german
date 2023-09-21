@@ -1199,7 +1199,7 @@ create table bi_temporal_base_table
 ------------------------------------------------------------------------------
 
 -- Set the version in the key/value store
-SELECT * FROM rt_set_key_value('refractory.schema.version', 'v1000');
+SELECT * FROM rt_set_key_value('schema.version', 'v1000');
 
 -- Commit the transaction
 COMMIT;
