@@ -24,15 +24,21 @@ ENV LANG de_DE.utf8
 # Neither do I oversee the implications of this.
 # https://askubuntu.com/questions/1465218/pip-error-on-ubuntu-externally-managed-environment-%C3%97-this-environment-is-extern
 
+# Set the locale
+RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8 
+ENV LANG de_DE.UTF-8
 
-RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8 && \
-    update-locale LANG=de_DE.UTF-8 && \
-    apt-get update  && \
-    apt-get upgrade -y && \
-    apt-get install -y libmagic1 && \
-    apt-get install -y restic ssh-client && \
-    apt-get install -y python3-pip pipx python3-dev  && \
-    apt-get install -y postgresql-plpython3-16  && \
-    pip3 install --break-system-packages rsa  && \
-    pip3 install --break-system-packages python-magic  && \
+# Update apt and install packages
+RUN apt-get update && \
+    apt-get install -y \
+    libmagic1 \
+    restic \
+    ssh-client \
+    python3-pip \
+    pipx \
+    python3-dev \
+    postgresql-plpython3-16 && \
     rm -rf /var/lib/apt/lists/*
+
+# Install python packages
+RUN pip3 install --break-system-packages rsa python-magic
