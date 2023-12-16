@@ -1,7 +1,3 @@
-Certainly! Here's an exhaustive README for the Docker repository based on the provided Dockerfile:
-
----
-
 # PostgreSQL Docker Image Repository
 
 ![PostgreSQL Logo](https://wiki.postgresql.org/images/3/30/PostgreSQL_logo.3colors.120x120.png)
