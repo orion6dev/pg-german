@@ -92,6 +92,30 @@ You can extend PostgreSQL by installing extensions using `CREATE EXTENSION` comm
 
 With Python libraries like `python-magic` installed, you can run custom Python scripts within your PostgreSQL environment.
 
+For example:
+
+```sql
+create or replace language "plpython3u"; 
+
+create or replace function mimemagic(data bytea) returns text as
+$$
+import magic
+return magic.from_buffer(data, mime=True)
+$$ language plpython3u;
+
+create or replace function compress(data bytea) returns bytea as
+$$
+import zlib
+return zlib.compress(data)
+$$ language plpython3u;
+
+create or replace function decompress(data bytea) returns bytea as
+$$
+import zlib
+return zlib.decompress(data)
+$$ language plpython3u;
+```
+
 ## Contributing
 
 We welcome contributions from the community! If you have suggestions, bug reports, or improvements, please feel free to open issues or submit pull requests.
