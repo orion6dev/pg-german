@@ -4,7 +4,7 @@
 # We use Kubegres (https://www.kubegres.io/) as a Kubernetes operator for PostgreSQL.
 # The operator is based on the official PostgreSQL Docker image.
 # We stay close to the PostgreSQL version used in the operator.
-FROM postgres:16.0
+FROM postgres:16.1
 
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
@@ -38,7 +38,5 @@ RUN apt-get update && \
     pipx \
     python3-dev \
     postgresql-plpython3-16 && \
+    pip3 install --break-system-packages rsa python-magic && \
     rm -rf /var/lib/apt/lists/*
-
-# Install python packages
-RUN pip3 install --break-system-packages rsa python-magic
