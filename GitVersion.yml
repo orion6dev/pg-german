@@ -1,0 +1,14 @@
+﻿mode: ContinuousDeployment
+branches:
+  master:
+    tag: ''
+    increment: Patch
+  develop:
+    tag: 'beta'
+    increment: Minor
+  review:
+    tag: 'rc'
+    increment: Patch
+ignore:
+  sha: []
+merge-message-formats: {}
