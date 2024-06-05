@@ -15,7 +15,7 @@ commit-message-incrementing: Enabled
 branches:
   develop:
     mode: ContinuousDeployment
-    tag: alpha
+    tag: develop
     increment: Minor
     prevent-increment-of-merged-branch-version: false
     track-merge-target: true
