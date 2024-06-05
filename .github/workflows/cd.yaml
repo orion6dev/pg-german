@@ -3,6 +3,7 @@
 on:
   push:
     branches:
+      - beta
       - develop
       - review
       - main
@@ -54,6 +55,9 @@ jobs:
         elif [ "${BRANCH_NAME}" == "main" ]; then
           export DOCKER_TAG="latest"
           export BUILD_CONFIGURATION="Release"
+        elif [ "${BRANCH_NAME}" == "beta" ]; then
+          export DOCKER_TAG="beta"
+          export BUILD_CONFIGURATION="Debug"
         else
           export DOCKER_TAG="${BRANCH_NAME}"
           export BUILD_CONFIGURATION="Debug"
