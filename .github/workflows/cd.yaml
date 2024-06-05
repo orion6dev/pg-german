@@ -7,8 +7,9 @@ on:
       - review
       - main
       - 'fix-*'
+
     paths:
-      - 'rcli/**'
+      - 'Dockerfile'
       
   workflow_dispatch:
 
