@@ -90,7 +90,7 @@ jobs:
         BUILD_CONFIGURATION: ${{ env.BUILD_CONFIGURATION }}
       run: |
         docker login ghcr.io \
-          --username automation@lungmuss.com \
+          --username orion6dev \
           --password $GITHUB_TOKEN
         
         docker build . \
@@ -101,12 +101,12 @@ jobs:
           --build-arg GITHUB_TOKEN=${PACKAGES_PAT} \
           --build-arg GITHUB_USER=${{ env.GITHUB_USER }} \
           --build-arg BUILD_CONFIGURATION=${BUILD_CONFIGURATION} \
-          --label org.opencontainers.image.source=https://github.com/lungmuss/${CI_REPOSITORY_NAME} \
-          --tag ghcr.io/lungmuss/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
+          --label org.opencontainers.image.source=https://github.com/orion6dev/${CI_REPOSITORY_NAME} \
+          --tag ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
           --file Dockerfile
         
-        docker tag ghcr.io/lungmuss/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
-          ghcr.io/lungmuss/${CI_REPOSITORY_NAME}:${DOCKER_TAG}
+        docker tag ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
+          ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${DOCKER_TAG}
         
-        docker push ghcr.io/lungmuss/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }}
-        docker push ghcr.io/lungmuss/${CI_REPOSITORY_NAME}:${DOCKER_TAG}
+        docker push ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }}
+        docker push ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${DOCKER_TAG}
