@@ -41,7 +41,7 @@ jobs:
       id: set-env-vars
       run: |
         export CI_REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-        export PROJECT_NAME=$(echo "${CI_REPOSITORY_NAME}" | sed -e 's/^refractory-//' -e 's/-/./g' -e 's/\b\(.\)/\u\1/g')
+        export PROJECT_NAME=$(echo "${CI_REPOSITORY_NAME}")
         export BRANCH_NAME=$(echo $GITHUB_REF | sed -e 's|refs/heads/||')
         
         if [ "${BRANCH_NAME}" == "develop" ]; then
