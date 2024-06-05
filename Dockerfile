@@ -4,7 +4,7 @@
 # We use Kubegres (https://www.kubegres.io/) as a Kubernetes operator for PostgreSQL.
 # The operator is based on the official PostgreSQL Docker image.
 # We stay close to the PostgreSQL version used in the operator.
-FROM postgres:16.3
+FROM postgres:17beta1
 
 VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
