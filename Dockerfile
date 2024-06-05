@@ -1,4 +1,4 @@
-#  docker build -t orion6/lungmuss.postgres .
+#  docker build -t orion6/orion6dev.postgres .
 #  https://wiki.postgresql.org/wiki/Apt
 
 # We use Kubegres (https://www.kubegres.io/) as a Kubernetes operator for PostgreSQL.
