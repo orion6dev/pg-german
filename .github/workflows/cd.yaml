@@ -1,0 +1,116 @@
+﻿name: continuous deployment
+
+on:
+  push:
+    branches:
+      - beta
+      - develop
+      - review
+      - main
+      - 'fix-*'
+
+    paths:
+      - 'Dockerfile'
+      
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+
+    steps:
+
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v1
+      with:
+        versionSpec: '5.x'
+
+    - name: Determine Version
+      id: gitversion
+      uses: gittools/actions/gitversion/execute@v1
+      with:
+        useConfigFile: true
+        configFilePath: GitVersion.yml
+
+    - name: Set Environment Variables
+      id: set-env-vars
+      run: |
+        export CI_REPOSITORY_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
+        export PROJECT_NAME=$(echo "${CI_REPOSITORY_NAME}")
+        export BRANCH_NAME=$(echo $GITHUB_REF | sed -e 's|refs/heads/||')
+        
+        if [ "${BRANCH_NAME}" == "develop" ]; then
+          export DOCKER_TAG="dev"
+          export BUILD_CONFIGURATION="Debug"
+        elif [ "${BRANCH_NAME}" == "review" ]; then
+          export DOCKER_TAG="review"
+          export BUILD_CONFIGURATION="Debug"
+        elif [ "${BRANCH_NAME}" == "main" ]; then
+          export DOCKER_TAG="latest"
+          export BUILD_CONFIGURATION="Release"
+        elif [ "${BRANCH_NAME}" == "beta" ]; then
+          export DOCKER_TAG="beta"
+          export BUILD_CONFIGURATION="Debug"
+        else
+          export DOCKER_TAG="${BRANCH_NAME}"
+          export BUILD_CONFIGURATION="Debug"
+        fi
+
+        echo "CI_REPOSITORY_NAME=${CI_REPOSITORY_NAME}" >> $GITHUB_ENV
+        echo "PROJECT_NAME=${PROJECT_NAME}" >> $GITHUB_ENV
+        echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+        echo "DOCKER_TAG=${DOCKER_TAG}" >> $GITHUB_ENV
+        echo "BUILD_CONFIGURATION=${BUILD_CONFIGURATION}" >> $GITHUB_ENV
+
+        echo "Transformed PROJECT_NAME is: ${PROJECT_NAME}"
+        echo "Transformed CI_REPOSITORY_NAME is: ${CI_REPOSITORY_NAME}"
+        echo "Branch name is: ${BRANCH_NAME}"
+        echo "Docker tag is: ${DOCKER_TAG}"
+        echo "Build configuration is: ${BUILD_CONFIGURATION}"
+
+    - name: Debug Environment Variables
+      run: |
+        echo "CI_REPOSITORY_NAME=${{ env.CI_REPOSITORY_NAME }}"
+        echo "PROJECT_NAME=${{ env.PROJECT_NAME }}"
+        echo "BRANCH_NAME=${{ env.BRANCH_NAME }}"
+        echo "DOCKER_TAG=${{ env.DOCKER_TAG }}"
+        echo "BUILD_CONFIGURATION=${{ env.BUILD_CONFIGURATION }}"
+
+    - name: Build and Push Docker image
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        PACKAGES_PAT: ${{ secrets.PACKAGES_PAT }}
+        GITHUB_USER: ${{ github.actor }}
+        CI_REPOSITORY_NAME: ${{ env.CI_REPOSITORY_NAME }}
+        PROJECT_NAME: ${{ env.PROJECT_NAME }}
+        DOCKER_TAG: ${{ env.DOCKER_TAG }}
+        BUILD_CONFIGURATION: ${{ env.BUILD_CONFIGURATION }}
+      run: |
+        docker login ghcr.io \
+          --username orion6dev \
+          --password $GITHUB_TOKEN
+        
+        docker build . \
+          --build-arg RELEASE_TAG=$PreReleaseTag \
+          --build-arg SEMVER=${{ steps.gitversion.outputs.semVer }} \
+          --build-arg INF_VER=${{ steps.gitversion.outputs.informationalVersion }} \
+          --build-arg PROJECT_NAME=${PROJECT_NAME} \
+          --build-arg GITHUB_TOKEN=${PACKAGES_PAT} \
+          --build-arg GITHUB_USER=${{ env.GITHUB_USER }} \
+          --build-arg BUILD_CONFIGURATION=${BUILD_CONFIGURATION} \
+          --label org.opencontainers.image.source=https://github.com/orion6dev/${CI_REPOSITORY_NAME} \
+          --tag ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
+          --file Dockerfile
+        
+        docker tag ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }} \
+          ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${DOCKER_TAG}
+        
+        docker push ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${{ steps.gitversion.outputs.semVer }}
+        docker push ghcr.io/orion6dev/${CI_REPOSITORY_NAME}:${DOCKER_TAG}

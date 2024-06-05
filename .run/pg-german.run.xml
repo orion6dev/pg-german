@@ -1,8 +1,9 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="pg-german" type="docker-deploy" factoryName="dockerfile" server-name="Docker">
+  <configuration default="false" name="pg-german" type="docker-deploy" factoryName="dockerfile" server-name="Docker for Desktop">
     <deployment type="dockerfile">
       <settings>
         <option name="imageTag" value="orion6docker/pg-german" />
+        <option name="buildOnly" value="true" />
         <option name="containerName" value="pg-german" />
         <option name="sourceFilePath" value="Dockerfile" />
       </settings>
