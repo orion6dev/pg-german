@@ -71,8 +71,10 @@ To get started with our PostgreSQL Docker image, follow these steps:
 4. Run a container from the image:
 
    ```bash
-   docker run -d -p 5432:5432 --name my-postgresql-container my-postgresql-app
+   docker run --rm -d -p 5432:5432 --name my-postgresql-app ghcr.io/orion6dev/pg-german:dev
    ```
+   docker pull ghcr.io/orion6dev/pg-german:dev
+
 
 Now, your PostgreSQL database server should be accessible at `localhost:5432`.
 
