@@ -1,0 +1,40 @@
+name: db
+
+services:
+  postgres:
+    image: ghcr.io/orion6dev/pg-german:dev
+    command: postgres -c 'max_connections=2000'
+    container_name: postgres
+    pull_policy: always
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test*12*
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_SCHEMA=public
+      - POSTGRES_SSLMODE=Disable
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      PGADMIN_DEFAULT_EMAIL: test@feuerfest.dev
+      PGADMIN_DEFAULT_PASSWORD: test*12*
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  pgadmin-data:
+    # This volume is for pgAdmin data persistence.
