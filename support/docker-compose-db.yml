@@ -2,7 +2,7 @@ name: db
 
 services:
   postgres:
-    image: ghcr.io/orion6dev/pg-german:dev
+    image: ghcr.io/orion6dev/pg-german:fix-1
     command: postgres -c 'max_connections=2000'
     container_name: postgres
     pull_policy: always
