@@ -75,6 +75,10 @@ To get started with our PostgreSQL Docker image, follow these steps:
    ```
    docker pull ghcr.io/orion6dev/pg-german:dev
 
+```bash
+docker compose -f support/docker-compose-db.yml up
+```
+
 
 Now, your PostgreSQL database server should be accessible at `localhost:5432`.
 
