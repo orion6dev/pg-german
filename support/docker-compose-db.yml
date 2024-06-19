@@ -1,5 +1,4 @@
-name: db
-
+version: '3.8'
 services:
   postgres:
     image: ghcr.io/orion6dev/pg-german:fix-1
@@ -22,6 +21,10 @@ services:
       - POSTGRES_PORT=5432
       - POSTGRES_SCHEMA=public
       - POSTGRES_SSLMODE=Disable
+    volumes:
+      - postgresql_etc:/etc/postgresql
+      - postgresql_log:/var/log/postgresql
+      - postgresql_lib:/var/lib/postgresql
 
   pgadmin:
     image: dpage/pgadmin4
@@ -37,4 +40,26 @@ services:
 
 volumes:
   pgadmin-data:
-    # This volume is for pgAdmin data persistence.
+    driver: local
+    driver_opts:
+      type: none
+      device: ${USERDIR}/pgadmin
+      o: bind
+  postgresql_etc:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${USERDIR}/postgresql/etc
+      o: bind
+  postgresql_log:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${USERDIR}/postgresql/log
+      o: bind
+  postgresql_lib:
+    driver: local
+    driver_opts:
+      type: none
+      device: ${USERDIR}/postgresql/lib
+      o: bind
