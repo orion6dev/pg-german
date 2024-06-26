@@ -24,6 +24,7 @@ services:
       - postgresql_etc:/etc/postgresql
       - postgresql_log:/var/log/postgresql
       - postgresql_lib:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
 
   pgadmin:
     image: dpage/pgadmin4
@@ -40,25 +41,11 @@ services:
 volumes:
   pgadmin-data:
     driver: local
-    driver_opts:
-      type: none
-      device: ${USERDIR}/pgadmin
-      o: bind
   postgresql_etc:
     driver: local
-    driver_opts:
-      type: none
-      device: ${USERDIR}/postgresql/etc
-      o: bind
   postgresql_log:
     driver: local
-    driver_opts:
-      type: none
-      device: ${USERDIR}/postgresql/log
-      o: bind
   postgresql_lib:
     driver: local
-    driver_opts:
-      type: none
-      device: ${USERDIR}/postgresql/lib
-      o: bind
+  postgresql_data:
+    driver: local
