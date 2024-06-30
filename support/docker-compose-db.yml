@@ -1,9 +1,8 @@
 services:
   postgres:
-    image: ghcr.io/orion6dev/pg-german:fix-1
+    image: ghcr.io/orion6dev/pg-german:local
     command: postgres -c 'max_connections=2000'
     container_name: postgres
-    pull_policy: always
     restart: on-failure
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
@@ -26,10 +25,23 @@ services:
       - postgresql_lib:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
 
+  pgbackrest:
+    image: woblerr/pgbackrest:2.52
+    environment:
+      BACKREST_UID: 1001
+      BACKREST_GID: 1001
+    volumes:
+      - ~/.ssh/id_rsa:/home/pgbackrest/.ssh/id_rsa:ro
+      - ./pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
+      - pgbackrest:/var/lib/pgbackrest
+    entrypoint: ["pgbackrest"]
+    depends_on:
+      - postgres
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
-    restart: always
+    restart: on-failure
     depends_on:
       - postgres
     environment:
@@ -48,4 +60,6 @@ volumes:
   postgresql_lib:
     driver: local
   postgresql_data:
-    driver: local
+    driver: local  
+  pgbackrest:
+    driver: local  
