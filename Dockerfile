@@ -31,6 +31,7 @@ ENV LANG de_DE.UTF-8
 # Update apt and install packages
 RUN apt-get update && \
     apt-get install -y \
+    pgbackrest \
     libmagic1 \
     restic \
     ssh-client \
