@@ -1,17 +1,20 @@
-#  docker build -t orion6/orion6dev.postgres .
-#  https://wiki.postgresql.org/wiki/Apt
+# docker build -t orion6/orion6dev.postgres .
+# https://wiki.postgresql.org/wiki/Apt
 
 # We use Kubegres (https://www.kubegres.io/) as a Kubernetes operator for PostgreSQL.
 # The operator is based on the official PostgreSQL Docker image.
 # We stay close to the PostgreSQL version used in the operator.
 FROM postgres:16.3
 
-VOLUME  ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+VOLUME ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
 # https://stackoverflow.com/questions/72273216/error-building-custom-docker-image-with-postgres-and-security-updates-configur
 ENV DEBIAN_FRONTEND=noninteractive
 
 COPY init.sql /docker-entrypoint-initdb.d/
+
+# Copy the custom postgresql.conf from the local 'config' directory to the appropriate place in the container
+COPY config/postgresql.conf /etc/postgresql/16/main/postgresql.conf
 
 ENV LANG de_DE.utf8
 
