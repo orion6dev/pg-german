@@ -66,4 +66,6 @@ RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
 EXPOSE 22
 
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
-CMD [ "-c", "config_file=/etc/postgresql.conf" ]
+
+# Start the SSH service and PostgreSQL with the custom configuration
+CMD ["sh", "-c", "service ssh start; exec postgres -c config_file=/etc/postgresql.conf"]
