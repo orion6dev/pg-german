@@ -38,25 +38,15 @@ RUN apt-get update && \
     python3-dev \
     postgresql-plpython3-16 && \
     pip3 install --break-system-packages rsa python-magic && \
-    rm -rf /var/lib/apt/lists/* 
+    rm -rf /var/lib/apt/lists/*
 
-# Create the SSH directory and copy the public key
+# Create the SSH directory and set permissions
 RUN mkdir -p /var/lib/postgresql/.ssh && \
-    chmod 700 /var/lib/postgresql/.ssh 
+    chmod 700 /var/lib/postgresql/.ssh
 
-# Copy the public key into the container
-# Assuming you have the public key `id_rsa.pub` in the same directory as your Dockerfile
-COPY id_rsa.pub /var/lib/postgresql/.ssh/authorized_keys
-
-# Set permissions on the authorized_keys file
-RUN chown -R postgres:postgres /var/lib/postgresql/.ssh && \
-    chmod 600 /var/lib/postgresql/.ssh/authorized_keys
-
-# Create SSH configuration directory
-RUN mkdir -p /etc/ssh
-
-# Add default SSH configuration
-RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+# Create SSH configuration directory and add default SSH configuration
+RUN mkdir -p /etc/ssh && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
     echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
     echo "UsePAM yes" >> /etc/ssh/sshd_config && \
@@ -65,6 +55,7 @@ RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
 # Expose the SSH port
 EXPOSE 22
 
+# Copy the custom postgresql.conf from the local 'config' directory to the appropriate place in the container
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
 
 # Start the SSH service and PostgreSQL with the custom configuration
