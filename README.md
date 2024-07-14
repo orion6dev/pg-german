@@ -135,3 +135,153 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Thank you for choosing our PostgreSQL Docker image. We hope it serves your database needs effectively. If you have any questions or need assistance, please don't hesitate to reach out to us through GitHub issues.
 
 Happy database management!
+
+Here's an exhaustive GitHub markdown file that explains how to use this Docker image, including samples and detailed instructions:
+
+```markdown
+# Custom PostgreSQL Docker Image with SSH and pgBackRest
+
+This repository provides a custom Docker image for PostgreSQL with SSH and pgBackRest configured for easy backup and restore operations. The image also includes additional utilities such as `libmagic`, `restic`, and Python packages.
+
+## Table of Contents
+
+- [Features](#features)
+- [Building the Image](#building-the-image)
+- [Running the Container](#running-the-container)
+- [Configuring SSH Keys](#configuring-ssh-keys)
+- [Custom Configuration](#custom-configuration)
+- [Using pgBackRest](#using-pgbackrest)
+- [Sample Commands](#sample-commands)
+
+## Features
+
+- PostgreSQL 16.3
+- SSH server for secure remote access
+- pgBackRest for reliable backup and restore
+- Additional utilities: `libmagic`, `restic`, `python3-pip`, `pipx`, `python3-dev`, `postgresql-plpython3-16`
+- Customizable PostgreSQL configuration
+
+## Building the Image
+
+To build the Docker image, clone this repository and run the following command:
+
+```sh
+docker build -t orion6/orion6dev.postgres .
+```
+
+## Running the Container
+
+To run the container, use the following command. Ensure you have the necessary files (`id_rsa.pub`, `init.sql`, and `postgresql.conf`) in the specified paths on your host machine:
+
+```sh
+docker run -d --name my-postgres-container \
+  -v /path/to/ssh-keys/id_rsa.pub:/var/lib/postgresql/.ssh/authorized_keys \
+  -v /path/to/init.sql:/docker-entrypoint-initdb.d/init.sql \
+  -v /path/to/config/postgresql.conf:/etc/postgresql.conf \
+  -p 5432:5432 -p 2222:22 orion6/orion6dev.postgres
+```
+
+### Parameters:
+- `/path/to/ssh-keys/id_rsa.pub`: Path to your SSH public key on the host.
+- `/path/to/init.sql`: Path to your SQL initialization script.
+- `/path/to/config/postgresql.conf`: Path to your custom PostgreSQL configuration file.
+- `-p 5432:5432`: Maps the PostgreSQL port.
+- `-p 2222:22`: Maps the SSH port.
+
+## Configuring SSH Keys
+
+Ensure you have an SSH key pair on your backup host. Copy the public key to the host directory that you will mount into the container.
+
+```sh
+ssh-keygen -t rsa -b 4096 -C "pgbackrest@backuphost"
+```
+
+Copy the public key to the directory you will mount:
+
+```sh
+cp ~/.ssh/id_rsa.pub /path/to/ssh-keys/
+```
+
+## Custom Configuration
+
+Your custom PostgreSQL configuration file should be placed in the directory you will mount to the container. For example, create a `postgresql.conf` file with your desired settings and place it in `/path/to/config/`.
+
+## Using pgBackRest
+
+pgBackRest is included in the image for backup and restore operations. Ensure your `pgbackrest.conf` is properly configured and accessible.
+
+### Example `pgbackrest.conf`:
+
+```ini
+[main-db]
+pg1-path=/var/lib/postgresql/data
+pg1-port=5432
+repo1-path=/var/lib/pgbackrest
+repo1-retention-full=2
+
+[global]
+repo1-cipher-pass=<encryption_passphrase>
+repo1-cipher-type=aes-256-cbc
+
+[global:archive-push]
+compress-level=3
+```
+
+Place this configuration file in a suitable location, accessible to your pgBackRest commands.
+
+## Sample Commands
+
+### Running a Backup
+
+To perform a backup, execute the following command from your pgBackRest host:
+
+```sh
+pgbackrest --stanza=main-db backup
+```
+
+### Restoring a Backup
+
+To restore a backup, use:
+
+```sh
+pgbackrest --stanza=main-db restore
+```
+
+### Checking Backup Status
+
+To check the status of your backups, run:
+
+```sh
+pgbackrest --stanza=main-db check
+```
+
+## Monitoring and Logs
+
+You can view logs for PostgreSQL and pgBackRest within the container to monitor the status of your database and backup operations.
+
+### Accessing PostgreSQL Logs
+
+To view PostgreSQL logs, you can attach to the running container or use Docker logs:
+
+```sh
+docker logs my-postgres-container
+```
+
+### Accessing SSH
+
+To access the container via SSH:
+
+```sh
+ssh -i /path/to/private/key -p 2222 postgres@<container-host-ip>
+```
+
+Ensure you replace `<container-host-ip>` with the actual IP address of the host running the container.
+
+## Conclusion
+
+This custom PostgreSQL Docker image provides a robust environment with SSH and pgBackRest for secure and reliable database operations. Customize the configuration as needed and use the provided commands to manage your PostgreSQL instance efficiently.
+
+For further details and best practices, refer to the [PostgreSQL documentation](https://www.postgresql.org/docs/) and [pgBackRest user guide](https://pgbackrest.org/user-guide.html).
+```
+
+This markdown file includes all necessary instructions for building, running, and using the custom PostgreSQL Docker image with SSH and pgBackRest, along with examples and explanations.
