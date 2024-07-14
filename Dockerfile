@@ -13,11 +13,6 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 COPY init.sql /docker-entrypoint-initdb.d/
 
-# Copy the custom postgresql.conf from the local 'config' directory to the appropriate place in the container
-COPY config/postgresql.conf /etc/postgresql/16/main/postgresql.conf
-
-ENV LANG de_DE.utf8
-
 # https://pypi.org/project/python-magic/
 # https://github.com/ahupp/python-magic
 # https://askubuntu.com/questions/105652/where-is-the-file-used-by-file1-and-libmagic-to-determine-mime-types
@@ -44,3 +39,6 @@ RUN apt-get update && \
     postgresql-plpython3-16 && \
     pip3 install --break-system-packages rsa python-magic && \
     rm -rf /var/lib/apt/lists/*
+
+COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
+CMD [ "-c", "config_file=/etc/postgresql.conf" ]
