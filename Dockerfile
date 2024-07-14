@@ -32,13 +32,38 @@ RUN apt-get update && \
     pgbackrest \
     libmagic1 \
     restic \
-    ssh-client \
+    openssh-server \
     python3-pip \
     pipx \
     python3-dev \
     postgresql-plpython3-16 && \
     pip3 install --break-system-packages rsa python-magic && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* 
+
+# Create the SSH directory and copy the public key
+RUN mkdir -p /var/lib/postgresql/.ssh && \
+    chmod 700 /var/lib/postgresql/.ssh 
+
+# Copy the public key into the container
+# Assuming you have the public key `id_rsa.pub` in the same directory as your Dockerfile
+COPY id_rsa.pub /var/lib/postgresql/.ssh/authorized_keys
+
+# Set permissions on the authorized_keys file
+RUN chown -R postgres:postgres /var/lib/postgresql/.ssh && \
+    chmod 600 /var/lib/postgresql/.ssh/authorized_keys
+
+# Create SSH configuration directory
+RUN mkdir -p /etc/ssh
+
+# Add default SSH configuration
+RUN echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "UsePAM yes" >> /etc/ssh/sshd_config && \
+    echo "AllowUsers postgres" >> /etc/ssh/sshd_config
+
+# Expose the SSH port
+EXPOSE 22
 
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
 CMD [ "-c", "config_file=/etc/postgresql.conf" ]
