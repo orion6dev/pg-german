@@ -24,6 +24,7 @@ services:
       - postgresql_log:/var/log/postgresql
       - postgresql_lib:/var/lib/postgresql
       - postgresql_data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
+      - ./test-ssh/id_ed25519_test.pub:/home/postgres/.ssh/authorized_keys:ro
 
   pgbackrest:
     image: woblerr/pgbackrest:2.52
@@ -31,7 +32,8 @@ services:
       BACKREST_UID: 1001
       BACKREST_GID: 1001
     volumes:
-      - ~/.ssh/id_rsa:/home/pgbackrest/.ssh/id_rsa:ro
+      - ./test-ssh/id_ed25519_test:/home/pgbackrest/.ssh/id_ed25519_test:ro
+      - ./test-ssh/id_ed25519_test.pub:/home/pgbackrest/.ssh/id_ed25519_test.pub:ro
       - ./pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
       - pgbackrest:/var/lib/pgbackrest
     entrypoint: ["pgbackrest"]
