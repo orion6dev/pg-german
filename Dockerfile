@@ -32,13 +32,21 @@ RUN apt-get update && \
 RUN mkdir -p /var/lib/postgresql/.ssh && \
     chmod 700 /var/lib/postgresql/.ssh
 
+# Copy the public key to the container and set permissions
+COPY id_ed25519_test.pub /var/lib/postgresql/.ssh/authorized_keys
+RUN chown -R postgres:postgres /var/lib/postgresql/.ssh && \
+    chmod 700 /var/lib/postgresql/.ssh && \
+    chmod 600 /var/lib/postgresql/.ssh/authorized_keys
+
 # SSH Configuration
 RUN mkdir -p /etc/ssh && \
     echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
     echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
     echo "UsePAM yes" >> /etc/ssh/sshd_config && \
-    echo "AllowUsers postgres" >> /etc/ssh/sshd_config
+    echo "AllowUsers postgres" >> /etc/ssh/sshd_config && \
+    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "AuthorizedKeysFile .ssh/authorized_keys" >> /etc/ssh/sshd_config
 
 # Expose SSH Port
 EXPOSE 22
@@ -55,8 +63,6 @@ RUN mkdir -p /var/lib/postgresql/data && \
 COPY start_services.sh /start_services.sh
 RUN chmod +x /start_services.sh
 
-# Override entrypoint to use the provided script
+# Use the official entrypoint script and default command
 ENTRYPOINT ["/start_services.sh"]
-
-# Use the default command provided by the official PostgreSQL image
 CMD ["postgres"]
