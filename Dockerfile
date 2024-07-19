@@ -1,32 +1,20 @@
-# docker build -t orion6/orion6dev.postgres .
-# https://wiki.postgresql.org/wiki/Apt
-
-# We use Kubegres (https://www.kubegres.io/) as a Kubernetes operator for PostgreSQL.
-# The operator is based on the official PostgreSQL Docker image.
-# We stay close to the PostgreSQL version used in the operator.
+# Base Image
 FROM postgres:16.3
 
+# Declare volumes
 VOLUME ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
 
-# https://stackoverflow.com/questions/72273216/error-building-custom-docker-image-with-postgres-and-security-updates-configur
+# Environment Variable
 ENV DEBIAN_FRONTEND=noninteractive
 
+# Copy initialization script
 COPY init.sql /docker-entrypoint-initdb.d/
 
-# https://pypi.org/project/python-magic/
-# https://github.com/ahupp/python-magic
-# https://askubuntu.com/questions/105652/where-is-the-file-used-by-file1-and-libmagic-to-determine-mime-types
-# https://www.garykessler.net/library/magic.html
-
-# I have no idea why this is necessary, but it is: --break-system-packages  
-# Neither do I oversee the implications of this.
-# https://askubuntu.com/questions/1465218/pip-error-on-ubuntu-externally-managed-environment-%C3%97-this-environment-is-extern
-
-# Set the locale
-RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8 
+# Locale Setting
+RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8
 ENV LANG=de_DE.UTF-8
 
-# Update apt and install packages
+# Package Installation
 RUN apt-get update && \
     apt-get install -y \
     pgbackrest \
@@ -40,11 +28,11 @@ RUN apt-get update && \
     pip3 install --break-system-packages rsa python-magic && \
     rm -rf /var/lib/apt/lists/*
 
-# Create the SSH directory and set permissions
+# Create SSH Directory and Set Permissions
 RUN mkdir -p /var/lib/postgresql/.ssh && \
     chmod 700 /var/lib/postgresql/.ssh
 
-# Create SSH configuration directory and add default SSH configuration
+# SSH Configuration
 RUN mkdir -p /etc/ssh && \
     echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
@@ -52,13 +40,15 @@ RUN mkdir -p /etc/ssh && \
     echo "UsePAM yes" >> /etc/ssh/sshd_config && \
     echo "AllowUsers postgres" >> /etc/ssh/sshd_config
 
-# Expose the SSH port
+# Expose SSH Port
 EXPOSE 22
 
-# Copy the custom postgresql.conf from the local 'config' directory to the appropriate place in the container
+# Copy PostgreSQL Configuration
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
 
+# Copy and Set Permissions for the Start Script
 COPY start_services.sh /start_services.sh
 RUN chmod +x /start_services.sh
 
+# Define the CMD to Start Services
 CMD ["/start_services.sh"]
