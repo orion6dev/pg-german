@@ -24,7 +24,7 @@ COPY init.sql /docker-entrypoint-initdb.d/
 
 # Set the locale
 RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8 
-ENV LANG de_DE.UTF-8
+ENV LANG=de_DE.UTF-8
 
 # Update apt and install packages
 RUN apt-get update && \
@@ -58,5 +58,7 @@ EXPOSE 22
 # Copy the custom postgresql.conf from the local 'config' directory to the appropriate place in the container
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
 
-# Start the SSH service and PostgreSQL with the custom configuration
-CMD ["sh", "-c", "service ssh start; exec postgres -c config_file=/etc/postgresql.conf"]
+COPY start_services.sh /start_services.sh
+RUN chmod +x /start_services.sh
+
+CMD ["/start_services.sh"]
