@@ -46,6 +46,11 @@ EXPOSE 22
 # Copy PostgreSQL Configuration
 COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
 
+# Ensure data directory exists and has correct permissions
+RUN mkdir -p /var/lib/postgresql/data && \
+    chown -R postgres:postgres /var/lib/postgresql && \
+    chmod 700 /var/lib/postgresql/data
+
 # Copy and Set Permissions for the Start Script
 COPY start_services.sh /start_services.sh
 RUN chmod +x /start_services.sh
