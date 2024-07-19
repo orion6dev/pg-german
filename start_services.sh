@@ -16,7 +16,7 @@ fi
 
 # Starting PostgreSQL service as the postgres user
 echo "Starting PostgreSQL service as non-root user..."
-su - postgres -c "postgres -D /var/lib/postgresql/data -c config_file=/etc/postgresql.conf" &
+su - postgres -c "/usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/data -c config_file=/etc/postgresql.conf" &
 postgres_status=$?
 if [ $postgres_status -ne 0 ]; then
     echo "Failed to start PostgreSQL service with status: $postgres_status"
