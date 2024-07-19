@@ -44,7 +44,7 @@ RUN mkdir -p /etc/ssh && \
 EXPOSE 22
 
 # Copy PostgreSQL Configuration
-COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql.conf
+COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql/postgresql.conf
 
 # Ensure data directory exists and has correct permissions
 RUN mkdir -p /var/lib/postgresql/data && \
@@ -55,5 +55,8 @@ RUN mkdir -p /var/lib/postgresql/data && \
 COPY start_services.sh /start_services.sh
 RUN chmod +x /start_services.sh
 
-# Define the CMD to Start Services
-CMD ["/start_services.sh"]
+# Override entrypoint to use the provided script
+ENTRYPOINT ["/start_services.sh"]
+
+# Use the default command provided by the official PostgreSQL image
+CMD ["postgres"]

@@ -14,19 +14,11 @@ else
     echo "SSH service started successfully."
 fi
 
-# Starting PostgreSQL service as the postgres user
-echo "Starting PostgreSQL service as non-root user..."
-su - postgres -c "/usr/lib/postgresql/16/bin/postgres -D /var/lib/postgresql/data -c config_file=/etc/postgresql.conf" &
-postgres_status=$?
-if [ $postgres_status -ne 0 ]; then
-    echo "Failed to start PostgreSQL service with status: $postgres_status"
-    exit $postgres_status
-else
-    echo "PostgreSQL service started successfully."
-fi
+# Ensure correct permissions on the PostgreSQL data directory
+echo "Setting permissions on PostgreSQL data directory..."
+chown -R postgres:postgres /var/lib/postgresql/data
+chmod 700 /var/lib/postgresql/data
 
-# Wait for any process to exit
-wait -n
-
-# Exit with the status of the process that exited first
-exit $?
+# Execute the original PostgreSQL entrypoint script
+echo "Starting PostgreSQL using the official entrypoint script..."
+exec docker-entrypoint.sh "$@"
