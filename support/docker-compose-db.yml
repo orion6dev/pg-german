@@ -1,16 +1,19 @@
 services:
   postgres:
+    # Using a custom PostgreSQL image tailored for German-specific setups.
     image: ghcr.io/orion6dev/pg-german:local
-    command: postgres -c 'max_connections=2000'
     container_name: postgres
     restart: on-failure
+    # Healthcheck to ensure the database is ready to accept connections.
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    # Mapping the PostgreSQL default port 5432 on the host to the container.
     ports:
       - "5432:5432"
+    # Environment variables to configure the PostgreSQL instance.
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=test*12*
@@ -19,56 +22,51 @@ services:
       - POSTGRES_PORT=5432
       - POSTGRES_SCHEMA=public
       - POSTGRES_SSLMODE=Disable
+    # Volumes for persistent storage and configuration management.
     volumes:
-      - postgresql_etc:/etc/postgresql
-      - postgresql_log:/var/log/postgresql
-      - postgresql_lib:/var/lib/postgresql
-      - postgresql_data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
-      - ./test-ssh/id_ed25519_test.pub:/home/postgres/.ssh/authorized_keys:ro
-
-  pgbackrest:
-    image: woblerr/pgbackrest:2.52
-    environment:
-      BACKREST_UID: 1001
-      BACKREST_GID: 1001
-    volumes:
-      - ./test-ssh/id_ed25519_test:/home/pgbackrest/.ssh/id_ed25519_test:ro
-      - ./test-ssh/id_ed25519_test.pub:/home/pgbackrest/.ssh/id_ed25519_test.pub:ro
-      - ./support/pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
-      - pgbackrest:/var/lib/pgbackrest
-    entrypoint: ["pgbackrest"]
-    depends_on:
-      - postgres
+      - postgresql-etc:/etc/postgresql
+      - postgresql-log:/var/log/postgresql
+      - postgresql-lib:/var/lib/postgresql
+      - postgresql-data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
+      - ./test-ssh/id_ed25519_test.pub:/home/postgres/.ssh/authorized_keys
 
   pgadmin:
+    # PgAdmin 4: A web-based administration tool for PostgreSQL.
+    # More info: https://www.pgadmin.org/
     image: dpage/pgadmin4
     container_name: pgadmin
     restart: on-failure
+    # Ensuring pgadmin starts only after postgres is available.
     depends_on:
       - postgres
+    # Configuration through environment variables.
     environment:
       PGADMIN_DEFAULT_EMAIL: test@feuerfest.dev
       PGADMIN_DEFAULT_PASSWORD: test*12*
+    # Persistent volume for pgadmin configurations and sessions.
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
-  # Network Multitool: A swiss army knife Docker container for network troubleshooting and debugging.
-  # Documentation: https://github.com/Praqma/Network-MultiTool
-  # $ docker exec -it network-multitool /bin/bash
   network-multitool:
+    # Network Multitool: A versatile Docker container for network troubleshooting and debugging.
+    # Documentation and usage guide: https://github.com/Praqma/Network-MultiTool
     image: wbitt/network-multitool:extra
     container_name: network-multitool
+    # Volumes for handling backups with pgBackRest.
+    volumes:
+      - pgbackrest-backup:/var/lib/pgbackrest
 
 volumes:
+  # Local driver is used for all volumes for simplicity and local development purposes.
   pgadmin-data:
     driver: local
-  postgresql_etc:
+  postgresql-etc:
     driver: local
-  postgresql_log:
+  postgresql-log:
     driver: local
-  postgresql_lib:
+  postgresql-lib:
     driver: local
-  postgresql_data:
+  postgresql-data:
     driver: local  
-  pgbackrest:
+  pgbackrest-backup:
     driver: local  
