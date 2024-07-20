@@ -33,7 +33,7 @@ RUN mkdir -p /var/lib/postgresql/.ssh && \
     chmod 700 /var/lib/postgresql/.ssh
 
 # Copy the public key to the container and set permissions
-COPY id_ed25519_test.pub /var/lib/postgresql/.ssh/authorized_keys
+COPY ./support/test-ssh/id_ed25519_test.pub /var/lib/postgresql/.ssh/authorized_keys
 RUN chown -R postgres:postgres /var/lib/postgresql/.ssh && \
     chmod 700 /var/lib/postgresql/.ssh && \
     chmod 600 /var/lib/postgresql/.ssh/authorized_keys
