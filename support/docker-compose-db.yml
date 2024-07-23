@@ -29,6 +29,7 @@ services:
       - postgresql-lib:/var/lib/postgresql
       - postgresql-data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
       - ./test-ssh/id_ed25519_test.pub:/home/postgres/.ssh/authorized_keys
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
   pgadmin:
     # PgAdmin 4: A web-based administration tool for PostgreSQL.
