@@ -243,7 +243,7 @@ docker run --rm -it `
     -e BACKREST_GID=1001 `
     -v ${PWD}/support/test-ssh/id_ed25519_test:/home/pgbackrest/.ssh/id_ed25519_test `
     -v ${PWD}/support/test-ssh/id_ed25519_test.pub:/home/pgbackrest/.ssh/id_ed25519_test.pub `
-    -v ${PWD}/support/pgbackrest/pgbackrest:/etc/pgbackrest/pgbackrest `
+    -v ${PWD}/support/pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf `
     -v ${PWD}/pgbackrest/backup:/var/lib/pgbackrest `
     --network support_default `
     woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519_test; chmod 644 /home/pgbackrest/.ssh/id_ed25519_test.pub; /bin/bash"
