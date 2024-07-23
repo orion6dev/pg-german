@@ -64,23 +64,19 @@ To get started with our PostgreSQL Docker image, follow these steps:
    docker build -t my-postgresql-app .
    ```
 
-4. Run a container from the image:
-
-   ```bash
-   docker run -d --name my-postgres-container \
-     -v /path/to/ssh-keys/id_rsa.pub:/var/lib/postgresql/.ssh/authorized_keys \
-     -v /path/to/init.sql:/docker-entrypoint-initdb.d/init.sql \
-     -v /path/to/config/postgresql.conf:/etc/postgresql.conf \
-     -p 5432:5432 -p 2222:22 my-postgresql-app
-   ```
-
-Alternatively, you can pull the pre-built image from GitHub Container Registry and use Docker Compose:
+4. Run the database:
 
 ```bash
-docker pull ghcr.io/orion6dev/pg-german:dev
-
 docker compose -f support/docker-compose-db.yml up
 ```
+
+Now you can attach to the network multitool
+
+```bash
+docker exec -it network-multitool /bin/bash
+```
+
+In the network multitool you can either ping the database server `ping postgres` or connect to the database server using ssh `ssh postgres@postgres`
 
 Now, your PostgreSQL database server should be accessible at `localhost:5432`.
 
@@ -228,3 +224,27 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 Thank you for choosing our PostgreSQL Docker image. We hope it serves your database needs effectively. If you have any questions or need assistance, please don't hesitate to reach out to us through GitHub issues.
 
 Happy database management!
+
+```bash
+docker run --rm -it \
+    -e BACKREST_UID=1001 \
+    -e BACKREST_GID=1001 \
+    -v ${PWD}/support/test-ssh/id_ed25519_test:/home/pgbackrest/.ssh/id_ed25519_test \
+    -v ${PWD}/support/test-ssh/id_ed25519_test.pub:/home/pgbackrest/.ssh/id_ed25519_test.pub \
+    -v ${PWD}/support/pgbackrest/pgbackrest:/etc/pgbackrest/pgbackrest \
+    -v ${PWD}/pgbackrest/backup:/var/lib/pgbackrest \
+    --network support_default \
+    woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519_test && chmod 644 /home/pgbackrest/.ssh/id_ed25519_test.pub && /bin/bash"
+```
+
+```powershell
+docker run --rm -it `
+    -e BACKREST_UID=1001 `
+    -e BACKREST_GID=1001 `
+    -v ${PWD}/support/test-ssh/id_ed25519_test:/home/pgbackrest/.ssh/id_ed25519_test `
+    -v ${PWD}/support/test-ssh/id_ed25519_test.pub:/home/pgbackrest/.ssh/id_ed25519_test.pub `
+    -v ${PWD}/support/pgbackrest/pgbackrest:/etc/pgbackrest/pgbackrest `
+    -v ${PWD}/pgbackrest/backup:/var/lib/pgbackrest `
+    --network support_default `
+    woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519_test; chmod 644 /home/pgbackrest/.ssh/id_ed25519_test.pub; /bin/bash"
+```
