@@ -28,7 +28,7 @@ services:
       - postgresql-log:/var/log/postgresql
       - postgresql-lib:/var/lib/postgresql
       - postgresql-data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
-      - ./test-ssh/id_ed25519_test.pub:/home/postgres/.ssh/authorized_keys
+      - ./test-ssh/postgres/:/home/postgres/.ssh/
     command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
 
   pgadmin:
@@ -52,12 +52,18 @@ services:
     image: wbitt/network-multitool:extra
     container_name: network-multitool
     volumes:
-      - pgbackrest-backup:/var/lib/pgbackrest
-      - ./test-ssh/id_ed25519_test.pub:/home/root/.ssh/id_ed25519_test.pub
-      - ./test-ssh/id_ed25519_test:/home/root/.ssh/id_ed25519_test
-    user: "root:root"  # Replace with appropriate user:group IDs
-    command: /bin/sh -c "chown -R root:root /usr/share/nginx/html && chown -R root:root /var/lib/nginx/logs && nginx -g 'daemon off;' && chown -R root:root /home/root/.ssh"
-
+      - ./test-ssh/postgres/:/home/root/.ssh/
+    user: "root:root"
+    command: /bin/sh -c "\
+      chown -R root:root /usr/share/nginx/html && \
+      chown -R root:root /var/lib/nginx/logs && \
+      chown -R root:root /home/root/.ssh && \
+      chmod 700 /home/root/.ssh && \
+      chmod 600 /home/root/.ssh/authorized_keys && \
+      chmod 600 /home/root/.ssh/config && \
+      chmod 600 /home/root/.ssh/id_ed25519_test && \
+      chmod 644 /home/root/.ssh/id_ed25519_test.pub && \
+      nginx -g 'daemon off;'"
 volumes:
   # Local driver is used for all volumes for simplicity and local development purposes.
   pgadmin-data:
