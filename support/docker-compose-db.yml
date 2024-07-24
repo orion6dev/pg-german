@@ -48,6 +48,17 @@ services:
     # Persistent volume for pgadmin configurations and sessions.
     volumes:
       - pgadmin-data:/var/lib/pgadmin
+        
+  pgbackrest-node:
+    image: ghcr.io/orion6dev/pgbackrest-node:local
+    container_name: pgbackrest-node
+    environment:
+      - BACKREST_UID=1001
+      - BACKREST_GID=1001
+    volumes:
+      - ./test-ssh/pgbackrest/:/home/pgbackrest/.ssh/
+      - ./pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf
+      - ./pgbackrest/backup:/var/lib/pgbackrest
 
   network-multitool:
     image: wbitt/network-multitool:extra
