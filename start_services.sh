@@ -20,8 +20,8 @@ chown -R postgres:postgres /home/postgres/.ssh
 chmod 700 /home/postgres/.ssh
 chmod 600 /home/postgres/.ssh/authorized_keys
 chmod 600 /home/postgres/.ssh/config
-chmod 600 /home/postgres/.ssh/id_ed25519_test
-chmod 644 /home/postgres/.ssh/id_ed25519_test.pub
+chmod 600 /home/postgres/.ssh/id_ed25519
+chmod 644 /home/postgres/.ssh/id_ed25519.pub
 
 # Ensure correct permissions on the PostgreSQL data directory
 echo "Setting permissions on PostgreSQL data directory..."
