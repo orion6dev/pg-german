@@ -14,11 +14,20 @@ else
     echo "SSH service started successfully."
 fi
 
+# Set correct permissions for SSH directory and files
+echo "Setting permissions for SSH directory and files..."
+chown -R postgres:postgres /home/postgres/.ssh
+chmod 700 /home/postgres/.ssh
+chmod 600 /home/postgres/.ssh/authorized_keys
+chmod 600 /home/postgres/.ssh/config
+chmod 600 /home/postgres/.ssh/id_ed25519_test
+chmod 644 /home/postgres/.ssh/id_ed25519_test.pub
+
 # Ensure correct permissions on the PostgreSQL data directory
 echo "Setting permissions on PostgreSQL data directory..."
 chown -R postgres:postgres /var/lib/postgresql/data
 chmod 700 /var/lib/postgresql/data
 
-# Execute the original PostgreSQL entrypoint script
+# Start PostgreSQL as the postgres user
 echo "Starting PostgreSQL using the official entrypoint script..."
-exec docker-entrypoint.sh "$@"
+exec gosu postgres:postgres docker-entrypoint.sh "$@"
