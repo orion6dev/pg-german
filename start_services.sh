@@ -28,6 +28,6 @@ echo "Setting permissions on PostgreSQL data directory..."
 chown -R postgres:postgres /var/lib/postgresql/data
 chmod 700 /var/lib/postgresql/data
 
-# Start PostgreSQL as the postgres user
+# Switch to the postgres user and start PostgreSQL
 echo "Starting PostgreSQL using the official entrypoint script..."
-exec gosu postgres:postgres docker-entrypoint.sh "$@"
+exec su - postgres -c "/usr/local/bin/docker-entrypoint.sh $@"
