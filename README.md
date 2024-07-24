@@ -241,11 +241,11 @@ docker run --rm -it \
 docker run --rm -it `
     -e BACKREST_UID=1001 `
     -e BACKREST_GID=1001 `
-    -v ${PWD}/support/test-ssh/:/home/pgbackrest/.ssh/ `
+    -v ${PWD}/support/test-ssh/pgbackrest/:/home/pgbackrest/.ssh/ `
     -v ${PWD}/support/pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf `
     -v ${PWD}/pgbackrest/backup:/var/lib/pgbackrest `
     --network support_default `
-    woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519_test; chmod 600 /home/pgbackrest/.ssh/config; chmod 644 /home/pgbackrest/.ssh/id_ed25519_test.pub; /bin/bash"
+    woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519; chmod 600 /home/pgbackrest/.ssh/config; chmod 600 /home/pgbackrest/.ssh/authorized_keys; chmod 644 /home/pgbackrest/.ssh/id_ed25519.pub; /bin/bash"
 ```
 
 pgbackrest --stanza=main-db --log-level-console=info stanza-create 
