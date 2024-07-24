@@ -3,9 +3,11 @@ Host *
     PasswordAuthentication no
     ChallengeResponseAuthentication no
     PubkeyAuthentication yes
-    IdentityFile /home/root/.ssh/id_ed25519
+    IdentityFile ~/.ssh/id_ed25519
 
 # Specific settings for 'postgres' host
 Host pgbackrest
-    StrictHostKeyChecking no
+    HostName pgbackrest
     User pgbackrest
+    IdentityFile ~/.ssh/id_ed25519
+    StrictHostKeyChecking no
