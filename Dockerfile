@@ -29,6 +29,17 @@ RUN apt-get update && \
     apt-get install -y gosu && \
     rm -rf /var/lib/apt/lists/*
 
+# Configure SSH Server
+RUN mkdir -p /var/run/sshd && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "UsePAM yes" >> /etc/ssh/sshd_config && \
+    echo "AllowUsers postgres" >> /etc/ssh/sshd_config && \
+    echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "AuthorizedKeysFile .ssh/authorized_keys" >> /etc/ssh/sshd_config && \
+    echo "Subsystem sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config
+
 # Expose SSH Port
 EXPOSE 22
 
