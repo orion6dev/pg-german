@@ -28,7 +28,7 @@ services:
       - postgresql-log:/var/log/postgresql
       - postgresql-lib:/var/lib/postgresql
       - postgresql-data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
-      - ./test-ssh/postgres/:/home/postgres/.ssh/
+      - ./test-ssh/postgres/:/var/lib/postgresql/.ssh/
     user: "root:root"
     entrypoint: ["/start_services.sh"]
     
@@ -51,7 +51,7 @@ services:
         
   pgbackrest-node:
     image: ghcr.io/orion6dev/pgbackrest-node:local
-    container_name: pgbackrest-node
+    container_name: pgbackrest
     environment:
       - BACKREST_UID=1001
       - BACKREST_GID=1001
