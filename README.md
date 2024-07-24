@@ -249,3 +249,244 @@ docker run --rm -it `
 ```
 
 pgbackrest --stanza=main-db --log-level-console=info stanza-create 
+
+Sure, here's a detailed chapter on how to map an `.ssh` directory and SSH into the PostgreSQL container:
+
+# Mapping an `.ssh` Directory and SSHing into the PostgreSQL Container
+
+This chapter will guide you through the steps to map an `.ssh` directory to your PostgreSQL Docker container and how to SSH into the container using the mapped SSH keys. This setup is particularly useful for secure and convenient access to your containerized PostgreSQL instance.
+
+## Prerequisites
+
+Before proceeding, ensure you have the following:
+- Docker installed on your system.
+- Basic knowledge of Docker and Docker Compose.
+- SSH keys generated on your local system. If not, you can generate them using `ssh-keygen`.
+
+## Step 1: Directory Structure
+
+Ensure your project directory has the following structure:
+
+```
+your-project/
+├── docker-compose.yml
+├── Dockerfile
+├── start_services.sh
+└── test-ssh/
+    └── postgres/
+        ├── authorized_keys
+        ├── config
+        ├── id_ed25519_test
+        └── id_ed25519_test.pub
+```
+
+- **authorized_keys**: Contains the public keys allowed to SSH into the container.
+- **config**: SSH client configuration file.
+- **id_ed25519_test**: Private SSH key.
+- **id_ed25519_test.pub**: Public SSH key.
+
+## Step 2: Dockerfile
+
+Your `Dockerfile` should install the necessary packages and copy the `start_services.sh` script. Here is an example:
+
+```Dockerfile
+# Base Image
+FROM postgres:16.3
+
+# Declare volumes
+VOLUME ["/etc/postgresql", "/var/log/postgresql", "/var/lib/postgresql"]
+
+# Environment Variable
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Copy initialization script
+COPY init.sql /docker-entrypoint-initdb.d/
+
+# Locale Setting
+RUN localedef -i de_DE -c -f UTF-8 -A /usr/share/locale/locale.alias de_DE.UTF-8
+ENV LANG=de_DE.UTF-8
+
+# Package Installation
+RUN apt-get update && \
+    apt-get install -y \
+    pgbackrest \
+    libmagic1 \
+    restic \
+    openssh-server \
+    python3-pip \
+    pipx \
+    python3-dev \
+    postgresql-plpython3-16 && \
+    pip3 install --break-system-packages rsa python-magic && \
+    rm -rf /var/lib/apt/lists/*
+
+# Expose SSH Port
+EXPOSE 22
+
+# Copy PostgreSQL Configuration
+COPY --chown=postgres:postgres config/postgresql.conf /etc/postgresql/postgresql.conf
+
+# Create SSH directory and set permissions
+RUN mkdir -p /home/postgres/.ssh && \
+    chown -R postgres:postgres /home/postgres/.ssh && \
+    chmod 700 /home/postgres/.ssh
+
+# Copy and Set Permissions for the Start Script
+COPY start_services.sh /start_services.sh
+RUN chmod +x /start_services.sh
+
+# Use the official entrypoint script and default command
+ENTRYPOINT ["/start_services.sh"]
+CMD ["postgres"]
+```
+
+## Step 3: start_services.sh
+
+The `start_services.sh` script sets the permissions for the SSH directory and starts the services:
+
+```bash
+#!/bin/bash
+
+# Exit immediately if a command exits with a non-zero status
+set -e
+
+# Starting the SSH service and logging the output
+echo "Starting SSH service..."
+service ssh start
+ssh_status=$?
+if [ $ssh_status -ne 0 ]; then
+    echo "Failed to start SSH service with status: $ssh_status"
+    exit $ssh_status
+else
+    echo "SSH service started successfully."
+fi
+
+# Set correct permissions for SSH directory and files
+echo "Setting permissions for SSH directory and files..."
+chown -R postgres:postgres /home/postgres/.ssh
+chmod 700 /home/postgres/.ssh
+chmod 600 /home/postgres/.ssh/authorized_keys
+chmod 600 /home/postgres/.ssh/config
+chmod 600 /home/postgres/.ssh/id_ed25519_test
+chmod 644 /home/postgres/.ssh/id_ed25519_test.pub
+
+# Ensure correct permissions on the PostgreSQL data directory
+echo "Setting permissions on PostgreSQL data directory..."
+chown -R postgres:postgres /var/lib/postgresql/data
+chmod 700 /var/lib/postgresql/data
+
+# Check if the permissions were set correctly
+echo "Checking permissions for /home/postgres/.ssh:"
+ls -l /home/postgres/.ssh
+
+echo "Checking permissions for /var/lib/postgresql/data:"
+ls -ld /var/lib/postgresql/data
+
+# Start PostgreSQL
+echo "Starting PostgreSQL using the official entrypoint script..."
+exec /usr/local/bin/docker-entrypoint.sh postgres "$@"
+
+entry_status=$?
+if [ $entry_status -ne 0 ]; then
+    echo "Failed to start PostgreSQL entrypoint with status: $entry_status"
+    exit $entry_status
+else
+    echo "PostgreSQL entrypoint started successfully."
+fi
+```
+
+## Step 4: Docker Compose Configuration
+
+Configure your `docker-compose.yml` to map the `.ssh` directory and use the custom `start_services.sh` script:
+
+```yaml
+version: '3.8'
+
+services:
+  network-multitool:
+    image: wbitt/network-multitool:extra
+    container_name: network-multitool
+    volumes:
+      - ./test-ssh/postgres/:/home/root/.ssh/
+    user: "root:root"
+    command: /bin/sh -c "\
+      chown -R root:root /usr/share/nginx/html && \
+      chown -R root:root /var/lib/nginx/logs && \
+      chown -R root:root /home/root/.ssh && \
+      chmod 700 /home/root/.ssh && \
+      chmod 600 /home/root/.ssh/authorized_keys && \
+      chmod 600 /home/root/.ssh/config && \
+      chmod 600 /home/root/.ssh/id_ed25519_test && \
+      chmod 644 /home/root/.ssh/id_ed25519_test.pub && \
+      nginx -g 'daemon off;'"
+
+  postgres:
+    image: ghcr.io/orion6dev/pg-german:local
+    container_name: postgres
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test*12*
+      - POSTGRES_DB=postgres
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_SCHEMA=public
+      - POSTGRES_SSLMODE=Disable
+    volumes:
+      - postgresql-etc:/etc/postgresql
+      - postgresql-log:/var/log/postgresql
+      - postgresql-lib:/var/lib/postgresql
+      - postgresql-data:/var/lib/postgresql/data
+      - ./test-ssh/postgres/:/home/postgres/.ssh/
+    user: "root:root"
+    entrypoint: ["/start_services.sh"]
+
+volumes:
+  postgresql-etc:
+  postgresql-log:
+  postgresql-lib:
+  postgresql-data:
+```
+
+## Step 5: SSH into the PostgreSQL Container
+
+To SSH into the PostgreSQL container, follow these steps:
+
+1. **Start the Docker Compose Services**:
+    ```sh
+    docker-compose up -d
+    ```
+
+2. **Get the Container ID**:
+    ```sh
+    docker ps
+    ```
+
+3. **SSH into the Container**:
+    Use the private key to SSH into the container:
+    ```sh
+    ssh -i ./test-ssh/postgres/id_ed25519_test postgres@<container-ip>
+    ```
+
+   - Replace `<container-ip>` with the IP address of the PostgreSQL container. You can find it using:
+     ```sh
+     docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <container-id>
+     ```
+
+   Alternatively, you can SSH into the container using its name if the SSH configuration allows it:
+    ```sh
+    ssh -i ./test-ssh/postgres/id_ed25519_test postgres@postgres
+    ```
+
+   Ensure the `config` file in your `.ssh` directory is properly configured to allow connections by hostnames or IP addresses.
+
+## Conclusion
+
+By following these steps, you should be able to map an `.ssh` directory to your PostgreSQL Docker container and SSH into it securely. This setup provides a convenient and secure method to access your containerized PostgreSQL instance for management and troubleshooting.
