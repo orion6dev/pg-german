@@ -39,7 +39,7 @@ RUN mkdir -p /var/run/sshd && \
     echo "UsePAM yes" >> /etc/ssh/sshd_config && \
     echo "AllowUsers postgres" >> /etc/ssh/sshd_config && \
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
-    echo "AuthorizedKeysFile /home/postgres/.ssh/authorized_keys" >> /etc/ssh/sshd_config
+    echo "AuthorizedKeysFile /var/lib/postgresql/.ssh/authorized_keys" >> /etc/ssh/sshd_config
 
 # Expose SSH Port
 EXPOSE 22
