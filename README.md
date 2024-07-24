@@ -245,6 +245,7 @@ docker run --rm -it `
     -v ${PWD}/support/pgbackrest/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf `
     -v ${PWD}/pgbackrest/backup:/var/lib/pgbackrest `
     --network support_default `
+    --name pgbackrest `
     woblerr/pgbackrest:2.52 /bin/bash -c "chmod 600 /home/pgbackrest/.ssh/id_ed25519; chmod 600 /home/pgbackrest/.ssh/config; chmod 600 /home/pgbackrest/.ssh/authorized_keys; chmod 644 /home/pgbackrest/.ssh/id_ed25519.pub; /bin/bash"
 ```
 
