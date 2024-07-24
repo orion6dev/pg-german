@@ -12,4 +12,3 @@ Host postgres
     StrictHostKeyChecking no
     IdentityFile /home/root/.ssh/id_ed25519
     User postgres
-    AllowUsers postgres
