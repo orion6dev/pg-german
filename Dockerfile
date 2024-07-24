@@ -31,14 +31,15 @@ RUN apt-get update && \
 
 # Configure SSH Server
 RUN mkdir -p /var/run/sshd && \
+    sed -i '/^#Subsystem sftp \/usr\/lib\/openssh\/sftp-server/s/^#//' /etc/ssh/sshd_config && \
+    sed -i '/^Subsystem sftp/ s|.*|Subsystem sftp /usr/lib/openssh/sftp-server|' /etc/ssh/sshd_config && \
     echo "PermitRootLogin no" >> /etc/ssh/sshd_config && \
     echo "PasswordAuthentication no" >> /etc/ssh/sshd_config && \
     echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
     echo "UsePAM yes" >> /etc/ssh/sshd_config && \
     echo "AllowUsers postgres" >> /etc/ssh/sshd_config && \
     echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config && \
-    echo "AuthorizedKeysFile .ssh/authorized_keys" >> /etc/ssh/sshd_config && \
-    grep -q "^Subsystem sftp" /etc/ssh/sshd_config || echo "Subsystem sftp /usr/lib/openssh/sftp-server" >> /etc/ssh/sshd_config
+    echo "AuthorizedKeysFile .ssh/authorized_keys" >> /etc/ssh/sshd_config
 
 # Expose SSH Port
 EXPOSE 22
