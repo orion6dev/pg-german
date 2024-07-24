@@ -37,11 +37,4 @@ ls -ld /var/lib/postgresql/data
 
 # Switch to the postgres user and start PostgreSQL
 echo "Switching to postgres user and starting PostgreSQL..."
-su postgres -c "/usr/local/bin/docker-entrypoint.sh $@"
-entry_status=$?
-if [ $entry_status -ne 0 ]; then
-    echo "Failed to start PostgreSQL entrypoint with status: $entry_status"
-    exit $entry_status
-else
-    echo "PostgreSQL entrypoint started successfully."
-fi
+exec gosu postgres "/usr/local/bin/docker-entrypoint.sh" "$@"
