@@ -1,14 +1,11 @@
-# SSHD configuration settings
+# General settings for all hosts
 Host *
-    PermitRootLogin yes
     PasswordAuthentication no
     ChallengeResponseAuthentication no
-    UsePAM yes
     PubkeyAuthentication yes
-    AuthorizedKeysFile /home/root/.ssh/authorized_keys
+    IdentityFile /home/root/.ssh/id_ed25519
 
 # Specific settings for 'postgres' host
 Host postgres
     StrictHostKeyChecking no
-    IdentityFile /home/root/.ssh/id_ed25519
     User postgres
