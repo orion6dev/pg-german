@@ -3,7 +3,7 @@ Host *
     PasswordAuthentication no
     ChallengeResponseAuthentication no
     PubkeyAuthentication yes
-    IdentityFile /home/root/.ssh/id_ed25519
+    IdentityFile /root/.ssh/id_ed25519
 
 # Specific settings for 'postgres' host
 Host postgres
