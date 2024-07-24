@@ -29,8 +29,16 @@ services:
       - postgresql-lib:/var/lib/postgresql
       - postgresql-data:/var/lib/postgresql/data  # Explicitly manage the PGDATA directory 
       - ./test-ssh/postgres/:/home/postgres/.ssh/
-    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
-
+    # Command to start PostgreSQL and set permissions for SSH files
+    command: /bin/sh -c "\
+      chown -R postgres:postgres /home/postgres/.ssh && \
+      chmod 700 /home/postgres/.ssh && \
+      chmod 600 /home/postgres/.ssh/authorized_keys && \
+      chmod 600 /home/postgres/.ssh/config && \
+      chmod 600 /home/postgres/.ssh/id_ed25519_test && \
+      chmod 644 /home/postgres/.ssh/id_ed25519_test.pub && \
+      postgres -c config_file=/etc/postgresql/postgresql.conf"
+    
   pgadmin:
     # PgAdmin 4: A web-based administration tool for PostgreSQL.
     # More info: https://www.pgadmin.org/
