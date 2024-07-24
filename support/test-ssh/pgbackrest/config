@@ -1,4 +1,15 @@
-Host postgres
+# SSHD configuration settings
+Host *
+    PermitRootLogin no
+    PasswordAuthentication no
+    ChallengeResponseAuthentication no
+    UsePAM yes
+    PubkeyAuthentication yes
+    AuthorizedKeysFile .ssh/authorized_keys
+
+# Specific settings for 'postgres' host
+Host pgbackrest
     StrictHostKeyChecking no
     IdentityFile /home/pgbackrest/.ssh/id_ed25519_test
-    User postgres
+    User pgbackrest
+    AllowUsers pgbackrest
