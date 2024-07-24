@@ -35,6 +35,6 @@ ls -l /home/postgres/.ssh
 echo "Checking permissions for /var/lib/postgresql/data:"
 ls -ld /var/lib/postgresql/data
 
-# Switch to the postgres user and start PostgreSQL
-echo "Switching to postgres user and starting PostgreSQL..."
-exec gosu postgres "/usr/local/bin/docker-entrypoint.sh" "$@"
+# Start PostgreSQL
+echo "Starting PostgreSQL using the official entrypoint script..."
+exec /usr/local/bin/docker-entrypoint.sh postgres "$@"
