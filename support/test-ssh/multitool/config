@@ -8,8 +8,8 @@ Host *
     AuthorizedKeysFile /home/root/.ssh/authorized_keys
 
 # Specific settings for 'postgres' host
-Host pgbackrest
+Host postgres
     StrictHostKeyChecking no
     IdentityFile /home/root/.ssh/id_ed25519
-    User pgbackrest
-    AllowUsers pgbackrest
+    User postgres
+    AllowUsers postgres
