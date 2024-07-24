@@ -1,0 +1,4 @@
+Host postgres
+    StrictHostKeyChecking no
+    IdentityFile /home/pgbackrest/.ssh/id_ed25519_test
+    User postgres

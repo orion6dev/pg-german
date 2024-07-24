@@ -1,0 +1,1 @@
+The directories emulate the `.ssh` directories on Linux.
