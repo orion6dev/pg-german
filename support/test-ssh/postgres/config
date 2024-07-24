@@ -5,7 +5,7 @@ Host *
     ChallengeResponseAuthentication no
     UsePAM yes
     PubkeyAuthentication yes
-    AuthorizedKeysFile .ssh/authorized_keys
+    AuthorizedKeysFile /home/postgres/.ssh/authorized_keys
 
 # Specific settings for 'postgres' host
 Host postgres
