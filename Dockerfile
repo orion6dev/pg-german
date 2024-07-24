@@ -26,6 +26,7 @@ RUN apt-get update && \
     python3-dev \
     postgresql-plpython3-16 && \
     pip3 install --break-system-packages rsa python-magic && \
+    apt-get install -y gosu && \
     rm -rf /var/lib/apt/lists/*
 
 # Expose SSH Port
