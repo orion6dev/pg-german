@@ -5,4 +5,5 @@
   --build-arg INF_VER='local.build' `
   --build-arg SEMVER='1' `
   --build-arg RELEASE_TAG='T' `
+  --no-cache `
   -t ghcr.io/orion6dev/pg-german:local .
