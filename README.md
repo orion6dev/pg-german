@@ -99,25 +99,25 @@ With Python libraries like `python-magic` installed, you can run custom Python s
 For example:
 
 ```sql
-CREATE OR REPLACE LANGUAGE plpython3u;
+create or replace language plpython3u;
 
-CREATE OR REPLACE FUNCTION mimemagic(data bytea) RETURNS text AS
+create or replace function mimemagic(data bytea) returns text as
 $$
 import magic
 return magic.from_buffer(data, mime=True)
-$$ LANGUAGE plpython3u;
+$$ language plpython3u;
 
-CREATE OR REPLACE FUNCTION compress(data bytea) RETURNS bytea AS
+create or replace function compress(data bytea) returns bytea as
 $$
 import zlib
 return zlib.compress(data)
-$$ LANGUAGE plpython3u;
+$$ language plpython3u;
 
-CREATE OR REPLACE FUNCTION decompress(data bytea) RETURNS bytea AS
+create or replace function decompress(data bytea) returns bytea as
 $$
 import zlib
 return zlib.decompress(data)
-$$ LANGUAGE plpython3u;
+$$ language plpython3u;
 ```
 
 ## Configuring SSH Keys
